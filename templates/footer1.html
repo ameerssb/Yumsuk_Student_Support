@@ -1,0 +1,44 @@
+<td class="stats" style="padding-top: 30px;vertical-align: top;">
+    <div class="bor" style="border-left-color: #3498db">
+        <p class="stat_q">Questions</p>
+        <p class="stat_a">{{ q }}</p>
+    </div>
+    <div class="bor" style="border-left-color: #f39c12;">
+        <p class="stat_q">Answers</p>
+        <p class="stat_a">{{ a }}</p>
+    </div>
+    <div class="bor" style="border-left-color: red;">
+        <p class="stat_q">Users</p>
+        <p class="stat_a">{{ u }}</p>
+    </div>
+    <div class="bor" style="border:none; padding-top: 40px;">
+        <p>Top users</p>
+        {% for obj in top %}
+        <p class="stat_q"><a  href="{% url 'profile' username=obj.username %}" style="color: #6f7daf;text-decoration: none;">{{ obj.username }} ({{obj.points}})</a></p>
+        {% endfor %}
+    </div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<script>
+    function openCity(evt, cityName) {
+        var i, tabcontent, tablinks;
+        tabcontent = document.getElementsByClassName("tabcontent");
+        for (i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].style.display = "none";
+        }
+        tablinks = document.getElementsByClassName("tablinks");
+        for (i = 0; i < tablinks.length; i++) {
+            tablinks[i].className = tablinks[i].className.replace(" active", "");
+        }
+        document.getElementById(cityName).style.display = "block";
+        evt.currentTarget.className += " active";
+    }
+
+    document.getElementById("defaultOpen").click();
+</script>
+
+</body>
+</html>

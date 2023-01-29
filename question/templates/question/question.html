@@ -1,0 +1,129 @@
+
+{% extends 'main.html' %}
+
+{% load static %}
+
+{% block content %}
+
+	{% include 'column1.html' %}
+	<div class="col-xl-8 py-4 border">
+		<div class="row">
+			<div class="col-lg-9">
+				<div class="text-primary fs-2"><span>{{ question }}</span></div>
+			</div>
+			<div class="col-lg-3">
+				<div class="text-start">
+					{% if request.user == question.user %}
+					<a class="btn btn-primary" href="{% url 'update' id=question.id url=question.url %}">Update</a>
+					<a class="btn btn-danger" href="{% url 'delete' id=question.id url=question.url %}">Delete</a>
+					{% endif %}		
+				</div>		
+			</div>
+			<div class="pb-1">
+				<small>Asked on {{question.created|date}}</small>  
+				<small class="ms-2"> Modified on {{question.updated|date}}</small>
+			</div>	
+			<div class="col-lg-2"><h6>{{ question.views }} Views</h6></div>
+				{% if question.answered == 0 %}
+			<div class="col-lg-2"><h6 class="text-danger">{{ question.answers }} Answer</h6></p></div>
+				{% else %}
+			<div class="col-lg-2"><h6 class="text-success">{{ question.answers }}</h6><p>Answers</p></div>
+				{% endif %}
+			<span class="fs-6">{{ question.description | linebreaks }}</span>
+		</div>
+		{% for obj in comments_q %}
+			<div class="d-flex flex-row-reverse">
+				<div class="">
+					<p class="text-primary">comments on question</p>				
+					<p><small>{{obj.body}}</small> <small>by - <a href="{% url 'profile' username=obj.user %}">{{obj.user}}</a> on {{obj.created}}</small>
+						<form action="" method="post">
+						{% csrf_token %}
+						<input type="hidden" name= "replied_to" value="{{obj.user}}" disabled>
+						<input type="text" class="form-control" name="comment_question" placeholder="reply to {{obj.user}}" required/>
+						</form>
+					</p>
+				</div>
+			</div>
+		{% endfor %}
+			<div class="row">
+				<div class="col-lg-6 pb-3">
+					<form action="" method="post">
+						{% csrf_token %}
+						<input type="text" name="comment_question" class="form-control" placeholder="Add a comment" size="30" id="username" required/>
+					</form>
+				</div>
+			</div>
+		<h3 class="mt-3">Answers</h3>
+		{% for obj in object_list %}
+		<div class="border-top pt-1">	
+			{% if obj.accepted == 1 %}
+			<div style="background-color: #fbfcff;"></div>
+			{% endif %}
+				<div class="row">
+					<div class="col-8">
+						<span class="ques"><a style="text-decoration: none;color:#444c63;">{{ obj.answer | linebreaks }}</a></span>
+						{% if obj.user.image %}
+						<img src="{{ obj.user.image.url }}" alt="" class="rounded-circle" width="37" height="40">
+						{% else%}
+						<img src="{% static 'image/default_user.png' %}" alt="" class="rounded-circle" width="37" height="40">
+						{% endif %}
+						<span class=""><a href="{% url 'profile' username=obj.user %}" >{{ obj.user }}</a> &nbsp &nbsp {{ obj.created }}</span>
+						<div>
+							<span class="fw-normal">{{ obj.votes }} Votes</span>
+							<a class="ps-3 text-decoration-none" href="{% url 'up' id=obj.id %}">like</a>
+							<a class="text-decoration-none" href="{% url 'down' id=obj.id %}">dislike</a>	
+						</div>
+					</div>
+					<div class="col-4">
+					{% if request.user == obj.user %}
+						<a class="btn btn-primary" href="{% url 'ans_update' id=obj.id %}">Update</a>
+						<a class="btn btn-danger" href="{% url 'ans_delete' id=obj.id %}">Delete</a>
+					{% endif %}
+					{% if request.user == obj.question.user %}
+						{% if obj.accepted == 0 %}
+						<a class="btn btn-success" href="{% url 'accept' id=obj.id %}">Accept</a></p>
+						{% else %}
+						<a class="btn btn-success" href="{% url 'unaccept' id=obj.id %}">Unaccept</a></p>
+						{% endif %}
+					{% endif %}
+					</div>
+					<div class="d-flex flex-row-reverse">
+						<div>
+						<p class="pt-2 text-primary">comments on answer</p>
+						{% for obj in comments_a %}
+							<p>
+								<small>{{obj.body}}</small>
+								<small>by -<a href="{% url 'profile' username=obj.user %}">{{obj.user}}</a> on {{obj.created}}</small>
+							</p>
+						{% endfor %}
+						<form action="" method="post">
+							{% csrf_token %}
+							<input type="hidden" name= "replied_to" value="{{obj.user}}" disabled>
+							<input type="text" class="form-control" name="comment_answer" placeholder="reply to {{obj.user}}" required/>
+						</form>		
+						</div>
+					</div>					
+					<div class="row">
+						<div class="col-lg-6 pb-3">
+							<form action="" method="post">
+								{% csrf_token %}
+								<input type="text" name="comment_question" class="form-control" placeholder="Add a comment" size="30" id="username" required/>
+							</form>
+						</div>
+					</div>	
+				</div>
+		</div>
+		{% endfor %}
+			<div class=" border-top">
+			<p class="pt-2 text-primary">add an answer</p>
+			<form id="create_form" method="post" action="{% url "detail" id=question.id url=question.url%}">
+				{% csrf_token %}
+				<div class="mb-3">
+					<textarea class="form-control" name="answer" id="answer" rows="3"></textarea>
+				</div>
+				<button class="btn btn-primary" type="submit" name="submit" id="submit">Submit Answer</button>
+			</form>
+			</div>
+	</div>
+	{% include 'column2.html' %}	
+{% endblock %}

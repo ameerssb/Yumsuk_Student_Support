@@ -1,0 +1,68 @@
+{% extends 'main.html' %}
+
+{% load static %}
+
+{% block content %}
+{% include 'header.html' %}
+
+    <main class="container pt-5">
+        <div class="pb-2 mb-3">
+            <div class="container" style="width: 600px !important;">
+                <div class="card py-2 px-5 bg-success">
+                <h5 class="text-white text-center">New to Yumsuk Discussion forum? Register here...</h5>
+                </div>
+                <div class="card bg-light">
+                <form class="text-start p-5" action="" method="post">
+                    {% csrf_token %}
+                    <div class="container">
+                        {% if messages %}
+                        <div class="messages text-center text-success pb-2">
+                            {% for message in messages %}
+                            <span {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{message}}</span>
+                            {% endfor %}
+                        </div> 
+                        {% endif %}                
+                        <div class="col-auto mb-4">
+                                <label class="form-label text-start text-success fw-bold" for="first_name">First name <span class="text-danger fw-normal">*</span></label>
+                                {{form.first_name}}
+                        </div>
+                        <div class="col-auto mb-4">
+                            <label class="form-label text-start text-success fw-bold" for="last_name">Last name <span class="text-danger fw-normal">*</span></label>
+                            {{form.last_name}}
+                        </div>
+                        <div class="col-auto mb-4">
+                            <label class="form-label text-start text-success fw-bold" for="email">Email <span class="text-danger fw-normal">*</span></label>
+                            {{form.email}}
+                        </div>
+                        <div class="col-auto mb-4">
+                            <label class="form-label text-start text-success fw-bold" for="password">Password <span class="text-danger fw-normal">*</span></label>
+                            {{form.password1}}
+                            <span class="helptext"><ul><li>Your password can’t be too similar to your other personal information.</li><li>Your password must contain at least 8 characters.</li><li>Your password can’t be a commonly used password.</li><li>Your password can’t be entirely numeric.</li></ul></span>
+                        </div>
+                        <div class="col-auto mb-4">
+                            <label class="form-label text-start text-success fw-bold" for="password">Password <span class="text-danger fw-normal">*</span></label>
+                            {{form.password2}}
+                            <br>
+                            <span class="helptext">Enter the same password as before, for verification.</span>
+                        </div>
+                        <div class="form-check mb-4">
+                            <input class="form-check-input" type="checkbox" id="terms" name="terms" required>
+                            <label class="form-check-label" for="terms">Agree with yumsuk journals <a href="" class="text-decoration-none">terms and conditions</a> </label>                    
+                        </div>                                
+                        <div class="text-center mb-2">
+                            <button type="submit" class="btn btn-success me-4">Submit</button>
+                            <button type="reset" class="btn btn-outline-success">Clear</button>
+                        </div>
+                        <div class="text center d-flex justify-content-center">
+                            <span>Already have an account? <a href="{% url 'Signin' %}" class="text-decoration-none">Sign-in</a></span>
+                        </div>
+                    </div>  
+                </form>
+                </div>
+            </div>
+        </div>    
+    </main>
+
+    {% include 'footer.html' %}    
+
+    {% endblock %}

@@ -1,0 +1,66 @@
+{% include 'header.html'%}
+{% load static %}
+<link rel='stylesheet' href='{% static "css/index.css" %}'>
+<link rel='stylesheet' href='{% static "css/login.css" %}'>
+    <div class="content">
+        <table style="width: 100%;border-spacing: 0px;min-height: 100%;">
+            <tr>
+        <td style="width:100%; float: left;">
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+            <p{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{message}}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% for obj in object_list %}
+
+        <div><h1>question {{obj.question}}</h1></div>
+        <div>
+            <h5>created {{obj.created|timesince}}  updated {{obj.updated}} posted by {{obj.user}} views {{obj.views}} </h5>
+            <br>
+            <h2>{{obj.description}} </h2>
+            <br>
+            <small>Comment on question</small>
+            <form action="" method="post">
+                <input type="text" name="comment_question" class="form-control" placeholder="Add a comment" size="30" id="username" required/>
+            </form>
+        </div>
+        <div>
+            <br>
+            <br>
+            <small>Add Answer</small>
+            <form action="" method="post">
+                <input type="text" name="answer" class="form-control" placeholder="Add an answer" size="30" id="username" required/>
+            </form>
+        </div>
+        <br>
+        <div>
+            <br>
+            <br>
+            <small>Comment on answer</small>
+            <form action="" method="post">
+                <input type="text" name="comment_answer" class="form-control" placeholder="Add a comment" size="30" id="username" required/>
+            </form>
+        </div>
+        {% endfor%}
+    
+        <br/><br/>
+        <div class="page" style="width: 79%;">
+            {% if object_list.has_previous %}
+            <a href="?page={{ object_list.previous_page_number }} & q={{ request.GET.q }}"><i class="fa fa-chevron-left" aria-hidden="true" style="background-color: #1abc9c;color: white; border:none;"></i></a>
+            {% else %}
+            <a><i class="fa fa-chevron-left" aria-hidden="true"></i></a>
+            {% endif %}
+            <span class="current">
+            &nbsp Page {{ object_list.number }} of {{ object_list.paginator.num_pages }}. &nbsp
+            </span>
+            {% if object_list.has_next %}
+            <a href="?page={{ object_list.next_page_number }} & q={{ request.GET.q }}" ><i class="fa fa-chevron-right " aria-hidden="true" style="background-color: #1abc9c;color: white; border:none;"></i></a>
+            {% else %}
+            <a><i class="fa fa-chevron-right " aria-hidden="true"></i></a>
+            {% endif %}
+        </div>
+        </td>
+    {% include 'footer.html'%}

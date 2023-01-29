@@ -1,0 +1,77 @@
+{% include 'header.html'%}
+{% load static %}
+<link rel='stylesheet' href='{% static "css/index.css" %}'>
+<link rel='stylesheet' href='{% static "css/login.css" %}'>
+		<div class="content">
+			<table style="width: 100%;min-height: 100%;border-spacing: 0px;">
+				<tr>
+			<td style="width:100%; float: left;">
+				<div class="heading">
+					<div class="tab">
+						<p>Login / Register</p>	
+					</div>
+				</div>
+
+			<div class="welcome">
+				<div class="tab">
+					<p class="tablinks" onclick="openCity(event, 'tab1')" id="defaultOpen" style="display:inline-block;">Log in</p>
+					<p class="tablinks" onclick="openCity(event, 'tab2')" style="display: inline-block;">Register</p>
+				</div>
+			</div>
+
+
+			{% if messages %}
+			<div class="messages">
+			    {% for message in messages %}
+			    <p{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{message}}</p>
+			    {% endfor %}
+			</div>
+			{% endif %}
+
+			<div id="tab1" class="tabcontent">
+				<div class="col-xs-4 login_form">
+			        <form id="login_form" method="post" action="">
+			        {% csrf_token %}
+			                Email: <br/>
+			                <input type="email" name="email" value="" class="form-control" size="50" id="username" required/>
+			            <br /><br/><br/>
+			                Password: <br/>
+			                <input type="password" name="password" value="" class="form-control" size="50" id="username" required/>
+			                <br /><br/>
+							<input type="hidden" name="next" value="{{request.GET.next}}"/>
+			        <input type="submit" name="submit" value="Sign in" id="create"/>
+			        </form>
+					<a href="{% url 'password_reset'%}">Forget Password</a>
+			    </div>
+			</div>
+
+
+			<div id="tab2" class="tabcontent">
+				<div class="col-xs-4 login_form">
+			        <form id="login_form" method="post" action="{{ request.get_full_path }}">
+			        {% csrf_token %}
+						Username: <br/>
+						<input type="text" name="username" value="" class="form-control" size="50" id="username" required/>
+						<br /><br/><br/>
+						First Name: <br/>
+						<input type="text" name="first_name" value="" class="form-control" size="50" id="first_name" required/>
+						<br /><br/><br/>
+						Last Name: <br/>
+						<input type="text" name="last_name" value="" class="form-control" size="50" id="last_name" required/>
+						<br /><br/><br/>
+						Email: <br/>
+			                <input type="email" name="email" value="" class="form-control" size="50" id="username" required/>
+			            <br /><br/><br/>
+			                Password: <br/>
+			                <input type="password" name="password" value="" class="form-control" size="50" id="username" required/>
+			                <br /><br/><br/>
+			                Confirm Password: <br/>
+			                <input type="password" name="conf_password" value="" class="form-control" size="50" id="username" required/>
+			                <br /><br/>
+			        <input type="submit" name="submit" value="Create Account" id="create"/>
+			        </form>
+			    </div>
+
+			</div>
+			</td>			
+{% include 'footer.html'%}

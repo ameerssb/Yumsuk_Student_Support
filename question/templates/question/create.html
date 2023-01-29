@@ -1,0 +1,52 @@
+
+{% extends 'main.html' %}
+
+{% load static %}
+
+{% block content %}
+
+	{% include 'column1.html' %}
+	<div class="col-xl-8 pt-4 border">
+		{% if messages %}
+		<div class="messages">
+			{% for message in messages %}
+			<p{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{message}}</p>
+			{% endfor %}
+		</div>
+		{% endif %}
+		<div class="container pb-3 mb-3">
+			<div class="card bg-success text-white text-center rounded-0">
+				<span class="fs-5 p-1">POST A QUESTION</span>
+			</div>
+			<div class="card pb-3 rounded-0">
+				<form id="create_form" method="post" action="">
+				{% csrf_token %}
+				<div class="container">
+					<div class="p-2">
+						<label class="form-label text-start text-success fw-bold" for="username">Question</label>
+						{{form.question}}
+					</div>
+					<div class="p-2">
+						<label class="form-label text-start text-success fw-bold" for="description">Description</label>
+						{{form.description}}
+					</div>
+					<div class="p-2">
+						<label class="form-label text-start text-success fw-bold" for="username">Topic's</label>
+						{{form.topic}}
+						<!-- <span>Hold down “Control”, or “Command” on a Mac, to select more than one.</span>						 -->
+					</div>
+					<div class="p-2">
+						<label class="form-label text-start text-success fw-bold" for="username">Keyword's <span class="text-danger fw-normal">use comma to separate them</span></label>
+						{{form.keywords}}
+					</div>
+					<div class="text-center pt-2">
+						<button type="submit" class="btn btn-success text-center" name="submit" id="submit">Submit Question</button>
+					</div>
+				</div>
+				</form>
+			</div>
+		</div>
+	</div>
+	{% include 'column2.html' %}	
+{% endblock %}
+	

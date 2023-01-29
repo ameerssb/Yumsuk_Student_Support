@@ -1,0 +1,59 @@
+{% include 'header.html'%}
+{% load static %}
+<link rel='stylesheet' href='{% static "css/user.css" %}'>
+		<div class="content">
+			<table style="width: 100%;border-spacing: 0px;min-height: 100%;">
+				<tr>
+			<td style="width:100%; float: left;">
+				<div class="heading">
+					<div class="tab">
+						<p>All Users</p>	
+					</div>
+				</div>
+
+
+
+			{% for obj in object_list %}
+			<div class="question">
+				<div class="left">
+					{% if obj.image %}
+					<img src='{{ obj.image.url }}' id="image"/>
+					{% else %}
+					<img src='{% static "image/default_user.png" %}' id="image"/>
+					{% endif %}
+					<div class="mid">
+						<a href="{% url "profile" username=obj.username %}" style="color: black; text-decoration: none;"><p style="font-size: 17px;">{{ obj.username }}</p></a>
+						<p><i class="fa fa-map-marker" aria-hidden="true"></i> &nbsp {{ obj.location }}</p>
+						<p><i class="fa fa-envelope" aria-hidden="true"></i> &nbsp {{ obj.email }}</p>
+					</div>
+					<div class="rank1">
+					<div style="display: inline-block;">
+						<p style="border:none;font-size: 35px;margin: 0px;color:#3498db">{{ obj.points }}</p>
+					</div><div style="display: inline-block;margin-left: 2%;">
+						<p style="border:none;font-size: 12px;margin: 0px;color:#3498db"><i class="fa fa-star" aria-hidden="true"></i></p>
+						<p style="border:none;font-size: 12px;margin: 0px;">Points</p>
+					</div></div>
+				</div>
+
+			</div>
+			{% endfor %}
+			<br/><br/>
+			<div class="page" style="width: 79%;">
+				{% if object_list.has_previous %}
+	            <a href="?page={{ object_list.previous_page_number }} & q={{ request.GET.q }}"><i class="fa fa-chevron-left" aria-hidden="true" style="background-color: #1abc9c;color: white; border:none;"></i></a>
+	            {% else %}
+	            <a><i class="fa fa-chevron-left" aria-hidden="true"></i></a>
+	        	{% endif %}
+	        	<span class="current">
+	            &nbsp Page {{ object_list.number }} of {{ object_list.paginator.num_pages }}. &nbsp
+	        	</span>
+	        	{% if object_list.has_next %}
+	            <a href="?page={{ object_list.next_page_number }} & q={{ request.GET.q }}" ><i class="fa fa-chevron-right " aria-hidden="true" style="background-color: #1abc9c;color: white; border:none;"></i></a>
+	            {% else %}
+	            <a><i class="fa fa-chevron-right " aria-hidden="true"></i></a>
+	        	{% endif %}
+	        </div>
+
+
+			</td>
+			{% include 'footer.html'%}

@@ -1,0 +1,43 @@
+{% load static %}
+{% load tags %}
+<nav class="navbar navbar-expand-md navbar-light fixed-top bg-success">
+    <div class="container-fluid m-2">
+      <div class="row">
+        <div class="col-xl-3">
+          <img class="" src="{% static 'assets/brand/logo.jpg' %}" alt="" width="72" height="57">      
+        </div>
+        <div class="col-sm-8 d-flex justify-content-center align-items-center">
+          <strong><a class="ms-1 navbar-brand text-white" href="{% url 'home' %}">Yumsuk Discussion forum</a></strong>
+        </div>
+        <div class="col-sm-8 d-flex justify-content-end">
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+        </div>
+      </div>
+      <div class="collapse navbar-collapse" id="navbarCollapse">
+      <ul class="navbar-nav me-auto mb-2 mb-md-0">
+      </ul>
+      <div class="nav nav-pills d-flex justify-content-center">
+        <h6><a class="nav-link text-white" href="{% url 'home' %}">home</a></h6> 
+        <h6><a class="nav-link text-white" href="{% url 'create' %}">Ask a Question</a></h6> 
+        {% if request.user.is_authenticated %}
+        <h6><a class="nav-link text-white" href="{% url 'profile' username=request.user %}">Profile</a></h6> 
+        {% else %}
+        <h6><a class="nav-link text-white">Profile</a></h6>
+        {% endif %}
+        <h6><a class="nav-link text-white" href="{% url 'user' %}">About</a></h6>
+        <h6><a class="nav-link me-3 text-white">Contact</a></h6>
+        <div class=" d-flex justify-content-center">
+        {% if user.is_authenticated %}
+          <a class="nav-link text-white" href="{% url 'password_change' %}">Change Password</a>
+          <a class="nav-link text-white" href="{% url 'Signout' %}">logout</a>
+        {% else %}
+          <a href="{% url 'Register' %}" class="me-4 btn btn-outline-light rounded-0">Register</a>
+          <a href="{% url 'Signin' %}" class="btn btn-light rounded-0">Sign in</a>
+        {% endif %}
+        </div>
+    </div> 
+      </div>
+      </div>
+</nav>

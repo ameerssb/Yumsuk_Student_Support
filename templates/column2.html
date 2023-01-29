@@ -1,0 +1,26 @@
+{% load static %}
+
+<div class="col-xl-2 bg-light py-5 ps-4">
+    <div>
+        <div class="row mb-3" style="border-left:7px solid #6c757d!important">
+            <span class="text-success fs-6">Questions</span>
+            <div><span class="fs-2 text-dark">{{q}}</span></div>
+        </div>
+        <div class="row mb-3" style="border-left:7px solid #ffc107!important">
+            <span class="text-success fs-6">Answers</span>
+            <div><span class="fs-2 text-dark">{{a}}</span></div>
+        </div>
+        <div class="row mb-3" style="border-left:7px solid #0d6efd!important">
+            <span class="text-success fs-6">Comments</span>
+            <div><span class="fs-2 text-dark">{{u}}</span></div>
+        </div>
+    </div>
+    <div>
+        <div class="pt-2">
+            <h6 class="">Top Users</h6>
+            {% for obj in top %}
+            <p><a  class="text-decoration-none" href="{% url 'profile' username=obj.username %}">{{ obj.username }} ({{obj.points}})</a></p>
+            {% endfor %}			
+        </div>
+    </div>
+</div>
