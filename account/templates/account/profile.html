@@ -1,0 +1,193 @@
+
+{% extends 'main.html' %}
+
+{% load static %}
+
+{% block content %}
+	{% include 'column1.html' %}
+	<div class="col-xl-8 pt-3 border">
+		<div class="container">
+			<div class="border-bottom">
+				<p class="fs-3">{{ profile.username }}'s Profile</p>	
+			</div>
+			<div class="row pb-4 border-bottom">
+				<div class="col-lg-2">
+				{% if request.user.is_authenticated %}
+					<div class="pt-lg-3 ps-lg-3">
+					{% if profile.image %}
+					<img src='{{ profile.image.url }}' class="img rounded-circle" width="120px" height="120px" />
+					{% else %}
+					<img src='{% static "image/default_user.png" %}' id="image1"/>
+					{% endif %}
+					</div>
+				</div>
+				<div class="col-lg-4">
+					<div class="pt-lg-4">
+						<p class="fs-2">{{ profile.username }}</p>
+						<p>{{ profile.location }}</p>
+						<p>{{ profile.email }}</p>
+					</div>
+				</div>
+				<div class="col-lg-3">
+				<p class="text-white">{{ rank }}</p>
+					<span class="text-primary fs-3">{{ profile.points }} <small class="fs-6">Points</small></span>
+				</div>
+				<div class="col-lg-3 d-flex align-items-center">
+					<div class="row">
+						<span class="col-lg-6"><h2 class="btn rounded-circle fs-4" style="background-color: #3498db;">{{ profile.questions }}</h2>Questions</span>
+						<span class="col-lg-6"><h2 class="btn rounded-circle fs-4" style="background-color: #1abc9c;">{{ profile.answers }}</h2>Answers</span>	
+					</div>
+				</div>
+				{% endif %}
+				{% if request.user.username == profile.username%}
+				<div class="col-lg-3 pt-lg-2">
+					<a class="form-control btn btn-primary py-lg-2" href="{% url 'profile_update' username=profile.username %}">Update</a>
+				</div>
+				{% endif %}
+			</div>
+			<div class="row py-4 border-bottom">
+				<div class="col-lg-3">
+					<div class="card text-center rounded-0">
+						<div class="fs-2 text-primary">+2 <span class="fs-6 text-dark">Points</span></div>
+						<div>Creating Question</div>
+					</div>
+				</div>
+				<div class="col-lg-3">
+					<div class="card text-center rounded-0">
+						<div class="fs-2 text-primary">+1 <span class="fs-6 text-dark">Points</span></div>
+						<div>Creating Answer</div>
+					</div>
+				</div>
+				<div class="col-lg-3">
+					<div class="card text-center rounded-0">
+						<div class="fs-2 text-primary">+10 <span class="fs-6 text-dark">Points</span></div>
+						<div>Answer is accepted</div>
+					</div>
+				</div>
+				<div class="col-lg-3">
+					<div class="card text-center rounded-0">
+						<div class="fs-2 text-primary">-10 <span class="fs-6 text-dark">Points</span></div>
+						<div>Answer is unaccepted</div>
+					</div>
+				</div>
+			</div>
+			<div class="pb-4">
+				<nav>
+					<div class="nav nav-tabs mb-3" id="nav-tab" role="tablist">
+					<button class="px-4 border-bottom fs-5 nav-link active" id="nav-question-tab" data-bs-toggle="tab" data-bs-target="#nav-question" type="button" role="tab" aria-controls="nav-question" aria-selected="false">Questions</button>							
+					<button class="px-4 border-bottom fs-5 nav-link" id="nav-answer-tab" data-bs-toggle="tab" data-bs-target="#nav-answer" type="button" role="tab" aria-controls="nav-answer" aria-selected="true">Answers</button>
+					</div>
+				</nav>
+				<div class="tab-content" id="nav-tabContent">
+					<div class="tab-pane fade show active" id="nav-question" role="tabpanel" aria-labelledby="nav-question-tab">
+						<div class="container-fluid">
+							{% for obj in object_list %}
+							<div class="row border-bottom pb-3 pt-3">
+								<div class="col-xl-9 ps-4">
+									<p class="fw-normal fs-3"><a href="{% url 'detail' obj.id obj.url %}" class="text-decoration-none">{{obj.question}}</a></p>
+									<p class="fw-normal fs-5 text-muted">{{ obj.question | linebreaks | truncatechars:50 }}</p>
+									<div class="row">
+										<div class="col-1 text-muted">
+											{% if obj.user.image %}
+											<img src="{{ obj.user.image.url }}" alt="" class="rounded-circle" width="37" height="40">
+											{% else%}
+											<img src="{% static 'image/default_user.png' %}" alt="" class="rounded-circle" width="37" height="40">
+											{% endif %}
+										</div>
+										<div class="col-6 text-muted d-flex align-items-center">
+											<span class="ps-4">{{obj.created}}</span>							
+										</div>
+									</div>
+								</div>
+								<div class="col-xl-3">
+									<div class="container">
+										<div class="row d-flex justify-content-center pt-3">
+											<div class="col-6">
+												<div class="btn py-3 px-3 border rounded-circle">
+													{{obj.views}}
+												</div>
+												<span class="ps-2 text-end">Views</span>
+											</div>
+											<div class="col-6">
+												<div class="btn py-3 px-4 border rounded-circle">
+													{{obj.answers}}
+												</div>
+												<span class="ps-2 text-end">Answers</span>
+											</div>												
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="d-flex justify-content-center py-3">
+								{% if object_list.has_previous %}
+									<a class="btn btn-primary" href="?page={{ object_list.previous_page_number }} & q={{ request.GET.q }}"></a>
+								{% endif %}
+								<span class="current">
+								&nbsp Page {{ object_list.number }} of {{ object_list.paginator.num_pages }}. &nbsp
+								</span>
+								{% if object_list.has_next %}
+									<a class="btn btn-primary" href="?page={{ object_list.next_page_number }} & q={{ request.GET.q }}" ></a>
+								{% endif %}
+							</div>
+							{% endfor %}
+						</div>
+					</div>
+					<div class="tab-pane fade" id="nav-answer" role="tabpanel" aria-labelledby="nav-answer-tab">
+						<div class="container-fluid">
+							{% for obj in object_list1 %}
+							<div class="row border-bottom pb-3 pt-3">
+								<div class="col-xl-9 ps-4">
+									<p class="fw-normal fs-3"><a href="" class="text-decoration-none">{{obj.question}}</a></p>
+									<p class="fw-normal fs-5 text-muted">{{ obj.question | linebreaks | truncatechars:50 }}</p>
+									<div class="row">
+										<div class="col-1 text-muted">
+											{% if obj.user.image %}
+											<img src="{{ obj.user.image.url }}" alt="" class="rounded-circle" width="37" height="40">
+											{% else%}
+											<img src="{% static 'image/default_user.png' %}" alt="" class="rounded-circle" width="37" height="40">
+											{% endif %}
+										</div>
+										<div class="col-6 text-muted  d-flex align-items-center">
+											<span class="ps-4">{{obj.created}}</span>							
+										</div>
+									</div>
+								</div>
+								<div class="col-xl-3">
+									<div class="container">
+										<div class="row d-flex justify-content-center pt-3">
+											<div class="col-6">
+												<div class="btn py-3 px-3 border rounded-circle">
+													{{obj.views}}
+												</div>
+												<span class="ps-2 text-end">Views</span>
+											</div>
+											<div class="col-6">
+												<div class="btn py-3 px-4 border rounded-circle">
+													{{obj.answers}}
+												</div>
+												<span class="ps-2 text-end">Answers</span>
+											</div>												
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="d-flex justify-content-center py-3">
+								{% if object_list1.has_previous %}
+									<a class="btn btn-primary" href="?page1={{ object_list1.previous_page_number }} & q={{ request.GET.q }}"></a>
+								{% endif %}
+								<span class="current">
+								&nbsp Page {{ object_list1.number }} of {{ object_list1.paginator.num_pages }}. &nbsp
+								</span>
+								{% if object_list1.has_next %}
+									<a class="btn btn-primary" href="?page1={{ object_list1.next_page_number }} & q={{ request.GET.q }}" ></a>
+								{% endif %}
+							</div>
+							{% endfor %}
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	{% include 'column2.html' %}	
+{% endblock %}

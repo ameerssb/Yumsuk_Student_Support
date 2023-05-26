@@ -15,7 +15,7 @@ class User(AbstractUser):
 	is_email_verified = models.BooleanField(default=False)
 	username = models.CharField(unique=False,max_length=30,blank=True)
 	phone = models.CharField(max_length=14, null=True, blank=True)	
-	image=models.ImageField(upload_to=upload_location, null=True)
+	image=models.ImageField(upload_to=upload_location, blank=True)
 	bio = models.TextField(blank=True,null=True)
 	points=models.IntegerField(default=0)
 	questions=models.IntegerField(default=0)

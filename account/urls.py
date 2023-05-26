@@ -7,10 +7,9 @@ from . import views
 urlpatterns = [
     path('verify/', views.verify_code, name="verify"),
     path('reverify/', views.reverify_code, name="reverify"),
-	path('profile/', include('django.contrib.auth.urls')),
-	path('profile/users/',views.User_list, name='user'),
+	# path('profile/users/',views.User_list, name='user'),
 	path('profile/update/<str:username>/', views.Update_pro,name='profile_update'),
-	path('profile/users/<str:username>/', views.profile,name='profile'),
+	path('profile/<str:username>/', views.profile,name='profile'),
     path('signin/', views.Signin.as_view(), name="Signin"),
     path('signout/', login_required(views.Signout.as_view()), name="Signout"),
     path('register/', views.Register.as_view(), name="Register"),

@@ -4,7 +4,7 @@
     <div class="container-fluid m-2">
       <div class="row">
         <div class="col-xl-3">
-          <img class="" src="{% static 'assets/brand/logo.jpg' %}" alt="" width="72" height="57">      
+          <img class="" src="{% static 'image/logo.jpg' %}" alt="" width="72" height="57">      
         </div>
         <div class="col-sm-8 d-flex justify-content-center align-items-center">
           <strong><a class="ms-1 navbar-brand text-white" href="{% url 'home' %}">Yumsuk Discussion forum</a></strong>
@@ -19,6 +19,9 @@
       <ul class="navbar-nav me-auto mb-2 mb-md-0">
       </ul>
       <div class="nav nav-pills d-flex justify-content-center">
+        <form action="" method="get">
+          <h6><input type="search" name="q" value="{{query}}" class="form-control" placeholder="Enter your search here"></h6>          
+        </form>
         <h6><a class="nav-link text-white" href="{% url 'home' %}">home</a></h6> 
         <h6><a class="nav-link text-white" href="{% url 'create' %}">Ask a Question</a></h6> 
         {% if request.user.is_authenticated %}
@@ -26,17 +29,19 @@
         {% else %}
         <h6><a class="nav-link text-white">Profile</a></h6>
         {% endif %}
-        <h6><a class="nav-link text-white" href="{% url 'user' %}">About</a></h6>
-        <h6><a class="nav-link me-3 text-white">Contact</a></h6>
-        <div class=" d-flex justify-content-center">
+        <h6><a class="nav-link text-white" href="#">About</a></h6>
+        <h6><a class="nav-link text-white" href="#">Contact</a></h6>
         {% if user.is_authenticated %}
+        <div class="d-flex">        
           <a class="nav-link text-white" href="{% url 'password_change' %}">Change Password</a>
           <a class="nav-link text-white" href="{% url 'Signout' %}">logout</a>
+        </div>
         {% else %}
+        <div class="">
           <a href="{% url 'Register' %}" class="me-4 btn btn-outline-light rounded-0">Register</a>
           <a href="{% url 'Signin' %}" class="btn btn-light rounded-0">Sign in</a>
+        </div>          
         {% endif %}
-        </div>
     </div> 
       </div>
       </div>

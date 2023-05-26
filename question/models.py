@@ -13,29 +13,6 @@ class Topic(models.Model):
 		return self.name
 
 
-class AnswerComment(models.Model):
-#	question = models.ForeignKey(Question,on_delete=models.CASCADE)
-	user=models.ForeignKey(User,on_delete=models.CASCADE)
-	body=models.TextField(null=False,blank=False)
-	question = models.ForeignKey('Question', null=True, blank=True, on_delete=models.CASCADE)
-	comment_answer = models.CharField(max_length=50, null=True, blank=True)
-	replied_to = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True,related_name="answer_replied")
-	created = models.DateTimeField(auto_now_add=True, auto_created=True)
-	updated = models.DateTimeField(auto_now=True, auto_created=True)
-	def __str__(self):
-		return self.body
-
-class QuestionComment(models.Model):
-#	question = models.ForeignKey(Question,on_delete=models.CASCADE)
-	user=models.ForeignKey(User,on_delete=models.CASCADE)
-	body=models.TextField(null=False,blank=False)
-	question = models.ForeignKey('Question', null=True, blank=True, on_delete=models.CASCADE)
-	replied_to = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name="question_replied")
-	created = models.DateTimeField(auto_now_add=True, auto_created=True)
-	updated = models.DateTimeField(auto_now=True, auto_created=True)
-	def __str__(self):
-		return self.body
-
 class Question(models.Model):
 	user=models.ForeignKey(User,on_delete=models.CASCADE)
 	topic = models.ManyToManyField(Topic,blank=True,related_name="topics")
@@ -61,7 +38,6 @@ class Answer(models.Model):
 	question = models.ForeignKey(Question,on_delete=models.CASCADE)
 	user=models.ForeignKey(User,on_delete=models.CASCADE)
 	answer=models.TextField()
-	comment = models.ManyToManyField(AnswerComment)
 	votes=models.IntegerField(default=0)
 	accepted=models.IntegerField(default=0)
 	created = models.DateTimeField(auto_now_add=True, auto_created=True)
@@ -70,8 +46,31 @@ class Answer(models.Model):
 	def __str__(self):
 		return self.answer
 
+class AnswerComment(models.Model):
+#	question = models.ForeignKey(Question,on_delete=models.CASCADE)
+	user=models.ForeignKey(User,on_delete=models.CASCADE)
+	body=models.TextField(null=False,blank=False)
+	question = models.ForeignKey(Question, null=True, blank=True, on_delete=models.CASCADE)
+	answer = models.ForeignKey(Answer, null=True, blank=True, on_delete=models.CASCADE, related_name="comment_answer")
+	replied_to = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True,related_name="answer_replied")
+	created = models.DateTimeField(auto_now_add=True, auto_created=True)
+	updated = models.DateTimeField(auto_now=True, auto_created=True)
+	def __str__(self):
+		return self.body
+
+class QuestionComment(models.Model):
+#	question = models.ForeignKey(Question,on_delete=models.CASCADE)
+	user=models.ForeignKey(User,on_delete=models.CASCADE)
+	body=models.TextField(null=False,blank=False)
+	question = models.ForeignKey(Question, null=True, blank=True, on_delete=models.CASCADE)
+	replied_to = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name="question_replied")
+	created = models.DateTimeField(auto_now_add=True, auto_created=True)
+	updated = models.DateTimeField(auto_now=True, auto_created=True)
+	def __str__(self):
+		return self.body
 
 class Vote(models.Model):
+	question = models.ForeignKey(Question,on_delete=models.DO_NOTHING)
 	answer = models.ForeignKey(Answer,on_delete=models.CASCADE)
 	user=models.ForeignKey(User,on_delete=models.CASCADE)
 	vote=models.IntegerField(default=0)

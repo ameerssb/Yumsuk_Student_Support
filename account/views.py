@@ -95,11 +95,15 @@ class Register(View):
         form = CreateUserForm(request.POST)
         if form.is_valid():
             try:
-                send_verification_email(request, form)
-                messages.success(request, "Account created. check your email inbox to verify your account")
+                data = form.save(commit=False)
+                data.is_email_verified
+                data.save()
+
+                # send_verification_email(request, form)
+                messages.success(request, "Account created. You can login now.")
                 return redirect('Signin')
             except:
-                messages.error(request, "an error occured while sending verification to your email, can't create your account at this time")
+                messages.error(request, "an error occured while creating your account,try again")
                 return redirect('Register')
         else:
                 messages.error(request, "Registration form is not filled correctly")
@@ -168,7 +172,7 @@ def reverify_code(request):
 
 @login_required
 def profile(request, username):
-  top = User.objects.filter(Q(is_staff=False) | Q(is_superuser=False)).order_by("-points")[:min(User.objects.count(),5)]
+  top = Question.objects.all().order_by('-views')[:5]
   if request.user.is_authenticated:
     id = User.objects.get(username=username)
     profile = get_object_or_404(User,id=id.id)
@@ -230,82 +234,91 @@ def profile(request, username):
     "u":User.objects.filter(Q(is_staff=False) | Q(is_superuser=False)).count(),
     "top":top
   }
-  return render(request,"profile.html",context)
+  return render(request,"account/profile.html",context)
 
 @login_required
 def Update_pro(request, username):
-  top = User.objects.filter(Q(is_staff=False) | Q(is_superuser=False)).order_by("-points")[:min(User.objects.count(),5)]
+  top = Question.objects.all().order_by('-views')[:5]
   id = User.objects.get(username=username)
   profile = get_object_or_404(User,id=id.id)
   instance=get_object_or_404(User,id=id.id)
-  if request.user.username == instance.username:
-    form = Update(request.POST or None, request.FILES or None,instance=instance)
-    if form.is_valid():
-      instance=form.save(commit=False)
-      instance.save()
-      messages.success(request, "Saved")
-      return HttpResponseRedirect('/')
-    context={
-      "instance":instance,
-      "form":form,"q":Question.objects.count(),"a":Answer.objects.count(),"u":User.objects.count(),"top":top,
-      "profile":profile
-    }
-    return render(request,"update.html",context)
-  else:
-    messages.error(request, "User unauthorized.")
-    return HttpResponseRedirect('/')
+  form = Update(instance=instance)
 
-@login_required
-def User_list(request):
-  top = User.objects.filter(Q(is_staff=False) | Q(is_superuser=False)).order_by("-points")[:min(User.objects.count(),5)]
-  if request.user.is_authenticated:
-    profile = get_object_or_404(User,username=request.user)
-    if profile.points < 100:
-      val = str(profile.points)+" / 100"
-      percent = float(profile.points)/100*100
-    elif profile.points < 1000:
-      val = str(profile.points)+" / 1000"
-      percent = float(profile.points)/1000*100
-    elif profile.points < 2000:
-      val = str(profile.points)+" / 2000"
-      percent = float(profile.points)/2000*100
+  if request.method == 'POST':
+    if request.user.username == instance.username:
+      form = Update(request.POST, request.FILES,instance=instance)
+      if form.is_valid():
+        instance=form.save(commit=False)
+        instance.save()
+        print(instance.image.url)        
+        messages.success(request, "Data Updated Successfully")
+        return redirect('profile',username=username)
     else:
-      val = str(profile.points)
-      percent = 100
-  else:
-    profile = get_object_or_404(User,id=1)
-    val = ""
-    percent = 100
+        messages.error(request, "User unauthorized.")
+        return HttpResponseRedirect('/')
 
-
-  queryset_list=User.objects.filter(Q(is_staff=False) | Q(is_superuser=False)).order_by("username")
-  query=request.GET.get('q')
-  if query:
-    queryset_list=queryset_list.filter(
-    Q(location__icontains=query)|
-    Q(user__username__icontains=query)
-    ).distinct()
-  paginator = Paginator(queryset_list, 10)
-  page = request.GET.get('page')
-  username='Login'
-  if User.is_active:
-    username = User.username
-  try:
-    queryset = paginator.page(page)
-  except PageNotAnInteger:
-    queryset = paginator.page(1)
-  except EmptyPage:
-    queryset = paginator.page(paginator.num_pages)
   context={
-    "object_list":queryset,
-    "page":"page",
-    "username":username,
-    "profile":profile,
-    "val":val,
-    "percent":percent,
+    "instance":instance,
+    "form":form,
     "q":Question.objects.count(),
     "a":Answer.objects.count(),
     "u":User.objects.filter(Q(is_staff=False) | Q(is_superuser=False)).count(),
-    "top":top
+    "top":top,
+    "profile":profile
   }
-  return render(request,"user.html",context)
+  return render(request,"account/update.html",context)
+
+# @login_required
+# def User_list(request):
+#   top = Question.objects.all().order_by('-views')[:5]
+#   if request.user.is_authenticated:
+#     profile = get_object_or_404(User,username=request.user)
+#     if profile.points < 100:
+#       val = str(profile.points)+" / 100"
+#       percent = float(profile.points)/100*100
+#     elif profile.points < 1000:
+#       val = str(profile.points)+" / 1000"
+#       percent = float(profile.points)/1000*100
+#     elif profile.points < 2000:
+#       val = str(profile.points)+" / 2000"
+#       percent = float(profile.points)/2000*100
+#     else:
+#       val = str(profile.points)
+#       percent = 100
+#   else:
+#     profile = get_object_or_404(User,id=1)
+#     val = ""
+#     percent = 100
+
+
+#   queryset_list=User.objects.filter(Q(is_staff=False) | Q(is_superuser=False)).order_by("username")
+#   query=request.GET.get('q')
+#   if query:
+#     queryset_list=queryset_list.filter(
+#     Q(location__icontains=query)|
+#     Q(user__username__icontains=query)
+#     ).distinct()
+#   paginator = Paginator(queryset_list, 10)
+#   page = request.GET.get('page')
+#   username='Login'
+#   if User.is_active:
+#     username = User.username
+#   try:
+#     queryset = paginator.page(page)
+#   except PageNotAnInteger:
+#     queryset = paginator.page(1)
+#   except EmptyPage:
+#     queryset = paginator.page(paginator.num_pages)
+#   context={
+#     "object_list":queryset,
+#     "page":"page",
+#     "username":username,
+#     "profile":profile,
+#     "val":val,
+#     "percent":percent,
+#     "q":Question.objects.count(),
+#     "a":Answer.objects.count(),
+#     "u":User.objects.filter(Q(is_staff=False) | Q(is_superuser=False)).count(),
+#     "top":top
+#   }
+#   return render(request,"user.html",context)

@@ -1,0 +1,38 @@
+{% extends 'main.html' %}
+
+{% load static %}
+
+{% block content %}
+
+	{% include 'column1.html' %}
+	<div class="col-xl-8 pt-4 border">
+		<div class="container pb-3 mb-3">
+			{% if messages %}
+			<div class="messages">
+				{% for message in messages %}
+					<p{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{message}}</p>
+				{% endfor %}
+			</div>
+			{% endif %}
+			<div class="card bg-success text-white text-center rounded-0">
+				<span class="fs-5 p-1">Update an Answer</span>
+			</div>
+			<div class="card pb-3 rounded-0">
+				<form id="update_form" method="post" action="">
+				{% csrf_token %}
+				<div class="container">
+					<div class="p-2">
+						<label class="form-label text-start text-success fw-bold" for="">Answer</label>
+						{{form.answer}}
+					</div>
+					<div class="pt-2">
+						<button type="submit" class="btn btn-success text-center" name="submit" id="submit">Update Answer</button>
+					</div>
+				</div>
+				</form>
+			</div>
+		</div>
+	</div>
+
+	{% include 'column2.html' %}	
+{% endblock %}

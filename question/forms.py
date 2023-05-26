@@ -6,7 +6,15 @@ class FormAnswer(forms.ModelForm):
 	class Meta:
 		model = Answer
 
-		fields = '__all__'
+		fields = ('answer',)
+	def __init__(self, *args, **kwargs):
+		super(FormAnswer,self).__init__(*args,**kwargs)
+		for i in self.fields:
+			self.fields[i].required = True
+			self.fields[i].widget.attrs['class'] = 'form-control mb-2'
+			self.fields[i].widget.attrs['rows'] = 4
+
+
 
 class FormTopic(forms.ModelForm):
 	class Meta:

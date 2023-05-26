@@ -14,7 +14,7 @@ from django.db.models import Q
 
 @login_required(redirect_field_name='next', login_url=None)
 def Question_create(request):
-  top = User.objects.filter(Q(is_staff=False) | Q(is_superuser=False)).order_by("-points")[:min(User.objects.count(),5)]
+  top = Question.objects.filter().order_by('-views')[:5]
   if request.user.is_authenticated:
     profile = get_object_or_404(User,username=request.user)
     if profile.points < 100:
@@ -69,7 +69,7 @@ def Question_update(request, id,url):
   form = FormQuestion(instance=instance)
 #  print(form)  
   if request.user == instance.user:
-    top = User.objects.all().order_by("-points")[:min(User.objects.count(),5)]
+    top = Question.objects.all().order_by('-views')[:5]
     if request.user.is_authenticated:
       profile = get_object_or_404(User,username=request.user)
       if profile.points < 100:
@@ -103,7 +103,11 @@ def Question_update(request, id,url):
       "action":x,
       "profile":profile,
       "val":val,
-      "percent":percent,"q":Question.objects.count(),"a":Answer.objects.count(),"u":User.objects.count(),"top":top
+      "percent":percent,
+      "q":Question.objects.count(),
+      "a":Answer.objects.count(),
+      "u":User.objects.filter(Q(is_staff=False) | Q(is_superuser=False)).count(),      
+      "top":top
     }
     return render(request,"question/create.html",context)
   else:
@@ -111,10 +115,10 @@ def Question_update(request, id,url):
     return HttpResponseRedirect('/')
 
 @login_required(redirect_field_name='next', login_url=None)
-def Answer_update(request, id,url):
-  instance=get_object_or_404(Answer,id=id,url=url)
+def Answer_update(request, id):
+  instance=get_object_or_404(Answer,id=id)
   if request.user == instance.user:
-    top = User.objects.all().order_by("-points")[:min(User.objects.count(),5)]
+    top = Question.objects.all().order_by("-views")[:5]
     if request.user.is_authenticated:
       profile = get_object_or_404(User,username=request.user)
       if profile.points < 100:
@@ -134,31 +138,37 @@ def Answer_update(request, id,url):
       val = ""
       percent = 100
     
+    form = FormAnswer(instance=instance)
+    
     if request.method == 'POST':
-      answer = request.POST['answer']
-      instance.answer = answer
-      instance.updated = datetime.now()
-      instance.save()
-      messages.success(request, "Answer Updated.")
-      return HttpResponseRedirect('/')
-    x="/ansupdate/" + str(id) + "/"
+      answer = FormAnswer(request.POST, instance=instance)
+      if answer.is_valid():
+        instance = answer.save(commit=False)
+        instance.updated = datetime.now()
+        instance.save()
+        return redirect('detail',id=instance.question.id,url=instance.question.url)        
+      else:
+        messages.success(request, "Answer not Updated.")
+        return redirect('ans_update',id=id)
     context={
-      "value":instance.answer,
-      "action":x,
+      "form":form,
       "profile":profile,
       "val":val,
-      "percent":percent,"q":Question.objects.count(),"a":Answer.objects.count(),"u":User.objects.count(),"top":top
+      "percent":percent,
+      "q":Question.objects.count(),
+      "a":Answer.objects.count(),
+      "u":User.objects.filter(Q(is_staff=False) | Q(is_superuser=False)).count(),    
+      "top":top
     }
-    return render(request,"question/ans_create.html",context)
+    return render(request,"question/ans_update.html",context)
   else:
     messages.error(request, "User unauthorized.")
     return HttpResponseRedirect('/')
 
-
 @login_required(redirect_field_name='next', login_url=None)
-def Answer_delete(request,id,url):
-  instance=get_object_or_404(Answer,id=id,url=url)
-  if request.user == instance.user.user:
+def Answer_delete(request,id):
+  instance=get_object_or_404(Answer,id=id)
+  if request.user == instance.user:
     instance.question.answers = instance.question.answers-1
     instance.question.save()
     instance.accepted = 0
@@ -174,7 +184,6 @@ def Answer_delete(request,id,url):
     messages.success(request, "Successfully deleted")
   return HttpResponseRedirect('/')
 
-
 @login_required(redirect_field_name='next', login_url=None)
 def Answer_accept(request,id=None):
   instance=get_object_or_404(Answer,id=id)
@@ -185,14 +194,14 @@ def Answer_accept(request,id=None):
     instance.save()
     instance.question.answered = 1
     instance.question.save()
-    return HttpResponseRedirect('/question/'+str(instance.question.id)+'/')
+    return HttpResponseRedirect('/question/'+str(instance.question.id)+'/'+instance.question.url+'/')
   else:
     messages.error(request, "User unauthorized.")
-    return HttpResponseRedirect('/question/'+str(instance.question.id)+'/')
-
+    return HttpResponseRedirect('/question/'+str(instance.question.id)+'/'+instance.question.url+'/')
 
 @login_required(redirect_field_name='next', login_url=None)
-def vote_up(request,id=None):
+def vote_up(request,id,url):
+  question = get_object_or_404(Question,url=url)
   instance=get_object_or_404(Answer,id=id)
   if Vote.objects.all().filter(answer=instance, user=request.user).exists():
     vote = get_object_or_404(Vote,answer=instance, user=request.user)
@@ -200,44 +209,47 @@ def vote_up(request,id=None):
       instance.votes = instance.votes+2
       instance.save()
       vote.vote = 1
+      vote.question = question
       vote.save()
-      return HttpResponseRedirect('/question/'+str(instance.question.id)+'/')
+      return HttpResponseRedirect('/question/'+str(instance.question.id)+'/'+url+'/')
     else:
       messages.error(request, "Already voted up")
-      return HttpResponseRedirect('/question/'+str(instance.question.id)+'/')
+      return HttpResponseRedirect('/question/'+str(instance.question.id)+'/'+url+'/')
   else:
 
     vote = Vote(answer=instance, user=request.user,vote=1)
     instance.votes = instance.votes+1
     instance.save()
+    vote.question = question    
     vote.save()
-    return HttpResponseRedirect('/question/'+str(instance.question.id)+'/')
-
+    return HttpResponseRedirect('/question/'+str(instance.question.id)+'/'+url+'/')
 
 @login_required(redirect_field_name='next', login_url=None)
-def vote_down(request,id=None):
+def vote_down(request,id,url):
   instance=get_object_or_404(Answer,id=id)
+  question = get_object_or_404(Question,url=url)      
   if Vote.objects.filter(answer=instance, user=request.user).exists():
     vote = get_object_or_404(Vote,answer=instance, user=request.user)
     if vote.vote==1:
       instance.votes = instance.votes-2
       instance.save()
       vote.vote = -1
+      vote.question = question      
       vote.save()
-      return HttpResponseRedirect('/question/'+str(instance.question.id)+'/')
+      return HttpResponseRedirect('/question/'+str(instance.question.id)+'/'+url+'/')
     else:
       messages.error(request, "Already voted down")
-      return HttpResponseRedirect('/question/'+str(instance.question.id)+'/')
+      return HttpResponseRedirect('/question/'+str(instance.question.id)+'/'+url+'/')
   else:
     vote = Vote(answer=instance, user=request.user,vote=-1)
     instance.votes = instance.votes-1
     instance.save()
+    vote.question = question    
     vote.save()
-    return HttpResponseRedirect('/question/'+str(instance.question.id)+'/')
-
+    return HttpResponseRedirect('/question/'+str(instance.question.id)+'/'+url+'/')
 
 @login_required(redirect_field_name='next', login_url=None)
-def Answer_unaccept(request,id=None):
+def Answer_unaccept(request,id):
   instance=get_object_or_404(Answer,id=id)
   if request.user == instance.question.user.user:
     instance.accepted = 0
@@ -249,13 +261,13 @@ def Answer_unaccept(request,id=None):
     else:
       instance.question.answered = 0
     instance.question.save()
-    return HttpResponseRedirect('/question/'+str(instance.question.id)+'/')
+    return HttpResponseRedirect('/question/'+str(instance.question.id)+'/'+instance.question.url+'/')
   else:
     messages.error(request, "User unauthorized.")
-    return HttpResponseRedirect('/question/'+str(instance.question.id)+'/')
+    return HttpResponseRedirect('/question/'+str(instance.question.id)+'/'+instance.question.url+'/')
 
 def Question_detail(request,id,url):
-  top = User.objects.filter(Q(is_staff=False) | Q(is_superuser=False)).order_by("-points")[:min(User.objects.count(),5)]
+  top = Question.objects.filter().order_by('-views')[:5]
   if request.user.is_authenticated:
     profile = get_object_or_404(User,username=request.user)
     if profile.points < 100:
@@ -279,30 +291,19 @@ def Question_detail(request,id,url):
   instance.views = instance.views + 1
   instance.save()
 
+  vote = Vote.objects.filter(question=instance)
   question_comments=QuestionComment.objects.filter(question=instance).order_by("created","updated","like")
   answers_comments=AnswerComment.objects.filter(question=instance).order_by("created","updated","like")
-  queryset_list=Answer.objects.all().filter(question=instance).order_by("-accepted","-votes","-created",'-updated')
-  query=request.GET.get('q')
-  if query:
-    queryset_list=queryset_list.filter(
-    Q(answer__icontains=query)|
-    Q(user__user__username__icontains=query)
-    ).distinct()
-  paginator = Paginator(queryset_list, 10)
-  page = request.GET.get('page')
-  try:
-    queryset = paginator.page(page)
-  except PageNotAnInteger:
-    queryset = paginator.page(1)
-  except EmptyPage:
-    queryset = paginator.page(paginator.num_pages)  
+  queryset=Answer.objects.all().filter(question=instance).order_by("-accepted","-votes","-created",'-updated')
 
   if request.method == 'POST':
     if request.user.is_authenticated:
       if 'comment_question' in request.POST and 'comment_question' != '':
         comment = request.POST['comment_question']
+        replied_to = request.POST['replied_to']
+        replied_to = get_object_or_404(User,id=replied_to)
         instance=get_object_or_404(User,username=request.user)
-        ans=QuestionComment(body=comment, question=question, user=instance)
+        ans=QuestionComment(body=comment, question=question, user=instance, replied_to=replied_to)
         instance.save()
         question.save()
         ans.save()
@@ -322,8 +323,12 @@ def Question_detail(request,id,url):
       
       elif 'comment_answer' in request.POST and 'comment_answer' != '':
         comment = request.POST['comment_answer']
+        replied_to = request.POST['replied_to']
+        replied_answer = request.POST['replied_answer']        
+        replied_answer = get_object_or_404(Answer,answer=replied_answer)
+        replied_to = get_object_or_404(User,id=replied_to)
         instance=get_object_or_404(User,username=request.user)
-        ans=AnswerComment(body=comment, question=question, user=instance)
+        ans=AnswerComment(body=comment, question=question, answer=replied_answer, user=instance, replied_to=replied_to)
         instance.save()
         question.save()
         ans.save()
@@ -334,6 +339,7 @@ def Question_detail(request,id,url):
 
 
   context={
+    "vote":vote,
     "question":question,
     "object_list":queryset,
     "comments_q":question_comments,
@@ -351,24 +357,40 @@ def Question_detail(request,id,url):
 
 @login_required(redirect_field_name='next', login_url=None)
 def Question_list(request):
-  top = User.objects.filter(Q(is_staff=False) | Q(is_superuser=False)).order_by("-points")[:min(User.objects.count(),5)]
+  top = Question.objects.filter().order_by('-views')[:5]
   profile = {}
   if request.user.is_authenticated:
     profile = get_object_or_404(User,username=request.user)
-
-  queryset_list=Question.objects.all().order_by("-updated","-created")
+  queryset_list=Question.objects.all().order_by("-created","-updated",)
+  queryset_list_home=Question.objects.all().order_by("-views","-created","-updated",)
   query=request.GET.get('q')
   if query:
     queryset_list=queryset_list.filter(
     Q(question__icontains=query)|
     Q(description__icontains=query)|
-    Q(user__user__username__icontains=query)
+    Q(user__username__icontains=query)
     ).distinct()
+  else:
+    query = ''
+  paginator = Paginator(queryset_list, 10)
+  page = request.GET.get('page')
+  try:
+    queryset_list = paginator.page(page)
+    queryset_list_home = paginator.page(page)    
+  except PageNotAnInteger:
+    queryset_list = paginator.page(1)
+    queryset_list_home = paginator.page(1)    
+  except EmptyPage:
+    queryset_list = paginator.page(paginator.num_pages) 
+    queryset_list_home = paginator.page(paginator.num_pages)    
+
   username='Login'
   if User.is_active:
     username = User.username
   context={
+    "query":query,
     "object_list":queryset_list,
+    "object_list_home":queryset_list_home,
     "username":username,
     "profile":profile,
     "q":Question.objects.count(),
@@ -380,7 +402,7 @@ def Question_list(request):
 
 @login_required(redirect_field_name='next', login_url=None)
 def Question_list_views(request):
-  top = User.objects.filter(Q(is_staff=False) | Q(is_superuser=False)).order_by("-points")[:min(User.objects.count(),5)]
+  top = Question.objects.filter().order_by('-views')[:5]
   if request.user.is_authenticated:
     profile = get_object_or_404(User,username=request.user)
     if profile.points < 100:
@@ -435,9 +457,9 @@ def Question_list_views(request):
   return render(request,"question/index.html",context)
 
 @login_required(redirect_field_name='next', login_url=None)
-def Question_delete(request,id=None):
-  instance=get_object_or_404(Question,id=id)
-  if request.user == instance.user.user:
+def Question_delete(request,id,url):
+  instance=get_object_or_404(Question,id=id,url=url)
+  if request.user == instance.user:
     instance.user.questions = instance.user.questions-1
     instance.user.save()
     instance.delete()

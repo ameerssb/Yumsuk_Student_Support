@@ -12,6 +12,6 @@ urlpatterns = [
 	path('question/ansdelete/<int:id>)/', views.Answer_delete,name='ans_delete'),
 	path('question/ansaccept/<int:id>)/', views.Answer_accept,name='accept'),
 	path('question/ansunaccept/<int:id>/', views.Answer_unaccept,name='unaccept'),
-	path('question/upvote/<int:id>/', views.vote_up,name='up'),
-	path('question/downvote/<int:id>/', views.vote_down,name='down'),
+	path('question/upvote/<int:id>/<str:url>/', views.vote_up,name='up'),
+	path('question/downvote/<int:id>/<str:url>/', views.vote_down,name='down'),
 	]
