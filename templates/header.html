@@ -2,7 +2,7 @@
 {% load tags %}
 <nav class="navbar navbar-expand-md navbar-light fixed-top bg-success">
     <div class="container-fluid m-2">
-      <a class="navbar-brand text-white fw-bold" href="#">Discussion Forum</a>
+      <a class="navbar-brand text-white fw-bold" href="{% url 'home' %}">Discussion Forum</a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>  
@@ -13,7 +13,6 @@
         <form action="" method="get">
           <h6><input type="search" name="q" value="{{query}}" class="form-control" placeholder="Enter your search here"></h6>          
         </form>
-        <h6><a class="nav-link text-white" href="{% url 'home' %}">home</a></h6> 
         <h6><a class="nav-link text-white" href="{% url 'create' %}">Ask a Question</a></h6> 
         {% if request.user.is_authenticated %}
         <h6><a class="nav-link text-white" href="{% url 'profile' username=request.user %}">Profile</a></h6> 
