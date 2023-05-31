@@ -29,7 +29,7 @@ SECRET_KEY = str(os.getenv('SECRET_KEY'))
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['127.0.0.1','hausaaskquestion.pythonanywhere.com']
 
@@ -128,13 +128,15 @@ USE_TZ = True
 
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
+STATIC_ROOT = BASE_DIR / "static-files"
+
 STATIC_URL = 'static/'
 
 STATICFILES_DIRS = [
-        BASE_DIR /  "static",
+        BASE_DIR / "static"
 ]
 
-STATIC_ROOT = BASE_DIR / "static_cdn"
+
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / "media"
 
